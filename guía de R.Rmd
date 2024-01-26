@@ -1,0 +1,22 @@
+---
+title: "Índice temático"
+output: pdf_document
+  toc: TRUE
+lang: ES-es
+date: "2022-12-12"
+---
+
+\pagebreak
+
+# ¿Qué es R?
+## Paquetes y librerías
+## ¿Cómo instalar R?
+
+# R y Rstudio
+## ¿Cómo es el flujo de trabajo en R?
+
+
+
+
+
+

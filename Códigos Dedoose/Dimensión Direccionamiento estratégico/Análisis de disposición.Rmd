@@ -1,0 +1,448 @@
+---
+title: "Cálculo para la Guía de Entrevista"
+author: "Dirección de Evaluación de la Gestión Institucional"
+output: pdf_document
+lang: "es"
+documentclass: article
+---
+
+\pagebreak
+
+```{r librerias, include=FALSE, message=FALSE}
+# Limpiamos el área de trabajo
+rm(list = ls())
+# Cargamos librerias
+library(tidyverse)
+library(ggstatsplot)
+source("C:/Users/tecnico_ine/Desktop/Rutina_encuestras/funcion_disposicion.R")
+```
+
+```{r texto, include=FALSE}
+comunicacion <- scan("C:/Users/tecnico_ine/Desktop/Rutina_encuestras/Códigos Dedoose/Dimensión Direccionamiento estratégico/DE FEMO/Comunicacion.txt",
+               what = character(), sep = "\n", fileEncoding = "UTF-8", allowEscapes = T)
+
+innovacion <- scan("C:/Users/tecnico_ine/Desktop/Rutina_encuestras/Códigos Dedoose/Dimensión Direccionamiento estratégico/DE FEMO/innovacion.txt",
+               what = character(), sep = "\n", fileEncoding = "UTF-8", allowEscapes = T)
+
+vision <- scan("C:/Users/tecnico_ine/Desktop/Rutina_encuestras/Códigos Dedoose/Dimensión Direccionamiento estratégico/DE FEMO/vision.txt",
+               what = character(), sep = "\n", fileEncoding = "UTF-8", allowEscapes = T)
+
+compromiso <- scan("C:/Users/tecnico_ine/Desktop/Rutina_encuestras/Códigos Dedoose/Dimensión Direccionamiento estratégico/DE FEMO/compromiso.txt",
+               what = character(), sep = "\n", fileEncoding = "UTF-8", allowEscapes = T)
+
+clima <- scan("C:/Users/tecnico_ine/Desktop/Rutina_encuestras/Códigos Dedoose/Dimensión Direccionamiento estratégico/DE FEMO/clima.txt",
+               what = character(), sep = "\n", fileEncoding = "UTF-8", allowEscapes = T)
+```
+
+# Análisis de sentimientos aplicado a direccionamiento estrategico
+
+El análisis de disposición se aplicó a la dimensión *Estrategia de direccionamiento* para cada uno de sus indicadores. Estos son:
+
+1.  Mecanismos de Comunicación y Coordinación
+2.  Innovación y Disposición al Cambio
+3.  Visión Prospectiva
+4.  Compromiso Institucional con el Interés Público
+5.  Clima Organizacional
+
+Los resultados son utilizados para el cáculo del Índice de Direccionamiento Estrategico (IDE). Además de ello, se presentan los índices para cada uno de los indicadores de la dimensión en un rango de 0 a 1. Un indicador con un valor menor 0.5 indica que hay una disposición negativa mientras que un indicador mayor a 0.5 indica una disposición positiva.
+
+## Análisis elaborado con el diccionario **afinn**
+
+El diccionario fue creado por Finn Arup Nielsen de la Universidad Técnica de Dinamarca. Los resultados obtenidios son los siguientes:
+
+| Característica                                            | Valoración |
+|-----------------------------------------------------------|------------|
+| Mecanismos de Comunicación y Coordinación                 |  90        |
+| Innovación y Disposición al Cambio                        |  128       |
+| Visión Prospectiva                                        |  26        |
+| Compromiso Institucional con el Interés Público           |  152       |
+| Clima Organizacional                                      | -62        |
+
+: Restulados del análisis de disposición con el diccionario afinn
+
+```{r analisis_afinn, include=FALSE}
+# Análisis Mecanismos de comunicación y coordinación
+analisis_comunicacion <- c()
+for (i in seq_along(comunicacion)) {
+  valor <- disposicion(comunicacion[i], diccionario = "nrc")
+  analisis_comunicacion[i] <- valor[[2]]
+}
+
+# Análisis innovación y disposición al cambio
+analisis_innovacion <- c()
+for (i in seq_along(innovacion)) {
+  valor <- disposicion(innovacion[i], diccionario = "nrc")
+  analisis_innovacion[i] <- valor[[2]]
+}
+
+# Análisis visión propéctiva
+analisis_vision <- c()
+for (i in seq_along(vision)) {
+  valor <- disposicion(vision[i], diccionario = "nrc")
+  analisis_vision[i] <- valor[[2]]
+}
+
+# Análisis Compromiso institucional con el interés público
+analisis_compromiso <- c()
+for (i in seq_along(compromiso)) {
+  valor <- disposicion(compromiso[i], diccionario = "nrc")
+  analisis_compromiso[i] <- valor[[2]]
+}
+
+# Análisis Clima Organizacional
+analisis_clima <- c()
+for (i in seq_along(clima)) {
+  valor <- disposicion(clima[i], diccionario = "nrc")
+  analisis_clima[i] <- valor[[2]]
+}
+
+
+primeros <- c(sum(analisis_comunicacion), sum(analisis_innovacion), sum(analisis_vision), sum(analisis_compromiso), sum(analisis_clima))
+primeros
+
+rm(valor)
+```
+
+```{r graficas_afinn, include=TRUE, message=FALSE}
+# Gráfica Mecanismos de Comunicación y Coordinación
+comunicacion_p <- ggplot() +
+  geom_col(aes(x = 1:length(analisis_comunicacion),
+           y = (2/pi)*atan(analisis_comunicacion/10)), fill = "#2A5783") +
+  geom_smooth(aes(x = 1:length(analisis_comunicacion),
+           y = (2/pi)*atan(analisis_comunicacion/10),
+           fill = "Tendencia"), se = FALSE, colour = "#9C0824") +
+  guides(fill = guide_legend(title = "")) +
+  geom_hline(yintercept = 0) +
+  labs(title = "Mecanismos de Comunicación y Coordinación",
+       y = "Ponderación", x = "") +
+  theme_minimal() +
+  theme(legend.position = "bottom",
+        plot.title = element_text(hjust = 0.5))
+comunicacion_p
+
+
+innovacion_p <- ggplot() +
+  geom_col(aes(x = 1:length(analisis_innovacion),
+           y = (2/pi)*atan(analisis_innovacion/10)), fill = "#2A5783") +
+  geom_smooth(aes(x = 1:length(analisis_innovacion),
+           y = (2/pi)*atan(analisis_innovacion/10),
+           fill = "Tendencia"), se = FALSE, colour = "#9C0824") +
+  guides(fill = guide_legend(title = "")) +
+  geom_hline(yintercept = 0) +
+  labs(title = "Innovación y Disposición al Cambio",
+       y = "Ponderación", x = "") +
+  theme_minimal() +
+  theme(legend.position = "bottom",
+       plot.title = element_text(hjust = 0.5))
+
+innovacion_p
+
+vision_p <- ggplot() +
+  geom_col(aes(x = 1:length(analisis_vision),
+           y = (2/pi)*atan(analisis_vision/10)), fill = "#2A5783") + 
+  geom_smooth(aes(x = 1:length(analisis_vision),
+          y = (2/pi)*atan(analisis_vision/10),
+           fill = "Tendencia"), se = FALSE, colour = "#9C0824") +
+  guides(fill = guide_legend(title = "")) +
+  geom_hline(yintercept = 0) +
+  labs(title = "Visión Prospectiva",
+       y = "Ponderación", x = "") +
+  theme_minimal() +
+  theme(legend.position = "bottom",
+        plot.title = element_text(hjust = 0.5))
+
+vision_p
+
+
+compromiso_p <- ggplot() +
+  geom_col(aes(x = 1:length(analisis_compromiso),
+           y = (2/pi)*atan(analisis_compromiso/10)), fill = "#2A5783") +
+  geom_smooth(aes(x = 1:length(analisis_compromiso),
+           y = (2/pi)*atan(analisis_compromiso/10),
+           fill = "Tendencia"), se = FALSE, colour = "#9C0824") +
+  guides(fill = guide_legend(title = "")) +
+  geom_hline(yintercept = 0) +
+  labs(title = "Compromiso Institucional con el Interés Público",
+       y = "Ponderación", x = "") +
+  theme_minimal() +
+  theme(legend.position = "bottom",
+        plot.title = element_text(hjust = 0.5))
+
+compromiso_p
+
+
+clima_p <- ggplot() +
+  geom_col(aes(x = 1:length(analisis_clima),
+           y = (2/pi)*atan(analisis_clima/10)), fill = "#2A5783") +
+  geom_smooth(aes(x = 1:length(analisis_clima),
+           y = (2/pi)*atan(analisis_clima/10),
+           fill = "Tendencia"), se = FALSE, colour = "#9C0824") +
+  guides(fill = guide_legend(title = "")) +
+  geom_hline(yintercept = 0) +
+  labs(title = "Clima Organizacional",
+       y = "Ponderación", x = "") +
+  theme_minimal() +
+  theme(legend.position = "bottom",
+        plot.title = element_text(hjust = 0.5))
+
+clima_p
+
+
+```
+
+Los resultados anteriores, aunque muestran la disposición de cada categoría, tiene el inconveniente de no hacer posible la comparación entre categorías esto debido a que el texto originador de cada valor tiene un tamaño distinto para cada categoría. Para solucionar este problema se sugiera hacer la sigiuente transformación:
+
+$\frac{\text{V}_{p}}{\#p}-\frac{\text{V}_{n}}{\#n}$
+
+en donde:
+
+```{=tex}
+\begin{itemize}
+\item $\text{V}_p$ es la ponderación de cada palabra con connotación positiva,
+\item $\#p$ es el número de palabras con connotación positiva,
+\item $\text{V}_n$ es la ponderación de cada palabra con connotación negativa,
+\item $\#n$ es el número de palabras con connotación negativa.
+\end{itemize}
+```
+
+
+```{r Transformaciones METODOLOGIA 1, include=FALSE}
+analisis_estr_df <- list() #porque vamos a guardar dataframes
+
+for (i in seq_along(estr)) {
+  valor <- disposicion(estr[i], diccionario = "afinn")
+  analisis_estr_df[[i]] <- valor[[1]]
+}
+
+analisis_estr_df <- analisis_estr_df[analisis_estr!=0]
+
+
+vp_1 <- 0
+vn_1 <- 0
+np_1 <- 0
+nn_1 <- 0
+
+for (i in seq_along(analisis_estr_df)){
+  vp_1 <- vp_1+sum(analisis_estr_df[[i]]$positivas)
+  vn_1 <- vn_1+sum(analisis_estr_df[[i]]$negativas)
+  np_1 <- np_1+sum(analisis_estr_df[[i]]$negativas==FALSE)
+  nn_1 <- nn_1+sum(analisis_estr_df[[i]]$positivas==FALSE)
+}
+
+razon_ED <- (vp_1-vn_1)/(np_1+nn_1)
+
+analisis_innov_df <- list()
+for (i in seq_along(innov)) {
+  valor <- disposicion(innov[i], diccionario = "afinn")
+  analisis_innov_df[[i]] <- valor[[1]]
+}
+analisis_innov_df <-  analisis_innov_df[analisis_innov!=0]
+vp_2 <- 0
+vn_2 <- 0
+np_2 <- 0
+nn_2 <- 0
+for (i in seq_along(analisis_innov_df)){
+  vp_2 <- vp_2+sum(analisis_innov_df[[i]]$positivas)
+  vn_2 <- vn_2+sum(analisis_innov_df[[i]]$negativas)
+  np_2 <- np_2+sum(analisis_innov_df[[i]]$negativas==FALSE)
+  nn_2 <- nn_2+sum(analisis_innov_df[[i]]$positivas==FALSE)
+}
+
+razon_BI <- (vp_2-vn_2)/(np_2+nn_2)
+
+analisis_clima_df <- list()
+for (i in seq_along(clima)) {
+  valor <- disposicion(clima[i], diccionario = "afinn")
+  analisis_clima_df[[i]] <- valor[[1]]
+}
+analisis_clima_df <-  analisis_clima_df[analisis_clima!=0]
+vp_3 <- 0
+vn_3 <- 0
+np_3 <- 0
+nn_3 <- 0
+for (i in seq_along(analisis_clima_df)){
+  vp_3 <- vp_3+sum(analisis_clima_df[[i]]$positivas)
+  vn_3 <- vn_3+sum(analisis_clima_df[[i]]$negativas)
+  np_3 <- np_3+sum(analisis_clima_df[[i]]$negativas==FALSE)
+  nn_3 <- nn_3+sum(analisis_clima_df[[i]]$positivas==FALSE)
+}
+
+razon_CO <- (vp_3-vn_3)/(np_3+nn_3)
+
+
+analisis_mecan_df <- list()
+for (i in seq_along(mecan)) {
+  valor <- disposicion(mecan[i], diccionario = "afinn")
+  analisis_mecan_df[[i]] <- valor[[1]]
+}
+analisis_mecan_df <-  analisis_mecan_df[analisis_mecan!=0]
+vp_4 <- 0
+vn_4 <- 0
+np_4 <- 0
+nn_4 <- 0
+for (i in seq_along(analisis_mecan_df)){
+  vp_4 <- vp_4+sum(analisis_mecan_df[[i]]$positivas)
+  vn_4 <- vn_4+sum(analisis_mecan_df[[i]]$negativas)
+  np_4 <- np_4+sum(analisis_mecan_df[[i]]$negativas==FALSE)
+  nn_4 <- nn_4+sum(analisis_mecan_df[[i]]$positivas==FALSE)
+}
+
+razon_MC <- (vp_4-vn_4)/(np_4+nn_4)
+
+
+analisis_gestion_df <- list()
+for (i in seq_along(gestion)) {
+  valor <- disposicion(gestion[i], diccionario = "afinn")
+  analisis_gestion_df[[i]] <- valor[[1]]
+}
+analisis_gestion_df <-  analisis_gestion_df[analisis_gestion!=0]
+vp_5 <- 0
+vn_5 <- 0
+np_5 <- 0
+nn_5 <- 0
+for (i in seq_along(analisis_gestion_df)){
+  vp_5 <- vp_5+sum(analisis_gestion_df[[i]]$positivas)
+  vn_5 <- vn_5+sum(analisis_gestion_df[[i]]$negativas)
+  np_5 <- np_5+sum(analisis_gestion_df[[i]]$negativas==FALSE)
+  nn_5 <- nn_5+sum(analisis_gestion_df[[i]]$positivas==FALSE)
+}
+
+razon_GPR <- (vp_5-vn_5)/(np_5+nn_5)
+
+
+razones <- c(razon_ED, razon_BI, razon_CO, razon_MC, razon_GPR)
+razones
+c <- 1
+y1 <- (2*(c)/pi)*(atan(razones/(10*c)))
+y1
+y2 <- (1/(2*c))*(y1+c)
+y2
+```
+
+
+
+
+
+
+
+
+
+
+
+
+```{r Transformaciones METODOLOGIA 2, include=FALSE}
+analisis_estr_df <- list() #porque vamos a guardar dataframes
+
+for (i in seq_along(estr)) {
+  valor <- disposicion(estr[i], diccionario = "afinn")
+  analisis_estr_df[[i]] <- valor[[1]]
+}
+
+analisis_estr_df <- analisis_estr_df[analisis_estr!=0]
+
+
+vp_1 <- 0
+vn_1 <- 0
+np_1 <- 0
+nn_1 <- 0
+
+for (i in seq_along(analisis_estr_df)){
+  vp_1 <- vp_1+sum(analisis_estr_df[[i]]$positivas)
+  vn_1 <- vn_1+sum(analisis_estr_df[[i]]$negativas)
+  np_1 <- np_1+sum(analisis_estr_df[[i]]$negativas==FALSE)
+  nn_1 <- nn_1+sum(analisis_estr_df[[i]]$positivas==FALSE)
+}
+
+Promedio_absoluto_ED <- vp_1/np_1-vn_1/nn_1
+
+analisis_innov_df <- list()
+for (i in seq_along(innov)) {
+  valor <- disposicion(innov[i], diccionario = "afinn")
+  analisis_innov_df[[i]] <- valor[[1]]
+}
+analisis_innov_df <-  analisis_innov_df[analisis_innov!=0]
+vp_2 <- 0
+vn_2 <- 0
+np_2 <- 0
+nn_2 <- 0
+for (i in seq_along(analisis_innov_df)){
+  vp_2 <- vp_2+sum(analisis_innov_df[[i]]$positivas)
+  vn_2 <- vn_2+sum(analisis_innov_df[[i]]$negativas)
+  np_2 <- np_2+sum(analisis_innov_df[[i]]$negativas==FALSE)
+  nn_2 <- nn_2+sum(analisis_innov_df[[i]]$positivas==FALSE)
+}
+
+Promedio_absoluto_BI <- vp_2/np_2-vn_2/nn_2
+
+analisis_clima_df <- list()
+for (i in seq_along(clima)) {
+  valor <- disposicion(clima[i], diccionario = "afinn")
+  analisis_clima_df[[i]] <- valor[[1]]
+}
+analisis_clima_df <-  analisis_clima_df[analisis_clima!=0]
+vp_3 <- 0
+vn_3 <- 0
+np_3 <- 0
+nn_3 <- 0
+for (i in seq_along(analisis_clima_df)){
+  vp_3 <- vp_3+sum(analisis_clima_df[[i]]$positivas)
+  vn_3 <- vn_3+sum(analisis_clima_df[[i]]$negativas)
+  np_3 <- np_3+sum(analisis_clima_df[[i]]$negativas==FALSE)
+  nn_3 <- nn_3+sum(analisis_clima_df[[i]]$positivas==FALSE)
+}
+
+Promedio_absoluto_CO <- vp_3/np_3-vn_3/nn_3
+
+
+analisis_mecan_df <- list()
+for (i in seq_along(mecan)) {
+  valor <- disposicion(mecan[i], diccionario = "afinn")
+  analisis_mecan_df[[i]] <- valor[[1]]
+}
+analisis_mecan_df <-  analisis_mecan_df[analisis_mecan!=0]
+vp_4 <- 0
+vn_4 <- 0
+np_4 <- 0
+nn_4 <- 0
+for (i in seq_along(analisis_mecan_df)){
+  vp_4 <- vp_4+sum(analisis_mecan_df[[i]]$positivas)
+  vn_4 <- vn_4+sum(analisis_mecan_df[[i]]$negativas)
+  np_4 <- np_4+sum(analisis_mecan_df[[i]]$negativas==FALSE)
+  nn_4 <- nn_4+sum(analisis_mecan_df[[i]]$positivas==FALSE)
+}
+
+Promedio_absoluto_MC <- vp_4/np_4-vn_4/nn_4
+
+
+analisis_gestion_df <- list()
+for (i in seq_along(gestion)) {
+  valor <- disposicion(gestion[i], diccionario = "afinn")
+  analisis_gestion_df[[i]] <- valor[[1]]
+}
+analisis_gestion_df <-  analisis_gestion_df[analisis_gestion!=0]
+vp_5 <- 0
+vn_5 <- 0
+np_5 <- 0
+nn_5 <- 0
+for (i in seq_along(analisis_gestion_df)){
+  vp_5 <- vp_5+sum(analisis_gestion_df[[i]]$positivas)
+  vn_5 <- vn_5+sum(analisis_gestion_df[[i]]$negativas)
+  np_5 <- np_5+sum(analisis_gestion_df[[i]]$negativas==FALSE)
+  nn_5 <- nn_5+sum(analisis_gestion_df[[i]]$positivas==FALSE)
+}
+
+Promedio_absoluto_GPR <- vp_5/np_5-vn_5/nn_5
+
+
+promedios_absolutos <- c(Promedio_absoluto_ED, Promedio_absoluto_BI, Promedio_absoluto_CO, Promedio_absoluto_MC, Promedio_absoluto_GPR)
+promedios_absolutos
+
+c <- 2
+y1 <- (2*(c)/pi)*(atan(promedios_absolutos/(2.5)))
+y1
+y2 <- (1/(2*c))*(y1+c)
+y2
+```
+
+
+
